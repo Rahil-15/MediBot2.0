@@ -23,3 +23,28 @@ conda activate MediBot2.0
 ```bash
 pip install -r requirements.txt
 ```
+
+## Creata a `.env` file in the root directory and add your pinecone & openAI credentials as follows
+
+```ini
+PINECONE_API_KEY = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+OPENROUTER_API_KEY ="xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```
+
+```bash
+#run the following command to store the embeddings to pinecone
+python store_index.py
+```
+
+```bash
+#finally run the following command
+python app.py
+```
+
+### Techstach used:
+
+- Python
+- Langchain
+- Flask
+- GPT
+- Pinecone
