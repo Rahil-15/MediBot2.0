@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MediBot — Medical Assistant</title>
+
+  <!-- stylesheet served from your static folder -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <main class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <!-- simple SVG medical logo -->
+        <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+          <rect x="6" y="10" width="36" height="28" rx="4" fill="#E9F2FF"/>
+          <path d="M24 14 v8 M20 18 h8" stroke="#1E6ED8" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <h1>MediBot</h1>
+          <p class="muted">Trusted medical info — not a prescription</p>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <button class="chip" data-q="What are symptoms of flu?">Flu symptoms</button>
+        <button class="chip" data-q="How to treat a minor burn?">Minor burn</button>
+        <button class="chip" data-q="Side effects of paracetamol">Paracetamol</button>
+      </div>
+
+      <footer class="sidebar-foot">
+        <small>Info is educational. For emergencies call local services.</small>
+      </footer>
+    </aside>
+
+    <section class="chat-area">
+      <header class="chat-header">
+        <div class="chat-title">
+          <div class="avatar avatar-bot">MB</div>
+          <div>
+            <h2>MediBot</h2>
+            <p class="muted">Medical information assistant</p>
+          </div>
+        </div>
+
+        <div class="status">
+          <span class="dot online"></span> Online
+        </div>
+      </header>
+
+      <div id="chat-box" class="messages" aria-live="polite">
+        <!-- messages injected here -->
+        <div class="msg system">
+          <div class="bubble">
+            Hello! I'm MediBot — ask me about symptoms, medicines, or health information.
+          </div>
+        </div>
+      </div>
+
+      <form id="chat-form" class="composer" autocomplete="off">
+        <input id="user-input" name="message" type="text" placeholder="Type a health question, e.g. 'What causes headaches?'" />
+        <button type="submit" id="send-btn" aria-label="Send">Send</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const chatForm = document.getElementById('chat-form');
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+    const quickChips = document.querySelectorAll('.chip');
+
+    function addMessage(content, who='bot') {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'msg ' + (who === 'user' ? 'user' : (who === 'system' ? 'system' : 'bot'));
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.innerText = content;
+      wrapper.appendChild(bubble);
+      chatBox.appendChild(wrapper);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // quick chips
+    quickChips.forEach(c => {
+      c.addEventListener('click', () => {
+        const q = c.dataset.q;
+        userInput.value = q;
+        chatForm.requestSubmit();
+      });
+    });
+
+    // show typing indicator
+    function showTyping() {
+      const typing = document.createElement('div');
+      typing.className = 'msg bot typing';
+      typing.id = 'typing';
+      typing.innerHTML = '<div class="bubble"><span class="dot-typing"></span><span class="dot-typing"></span><span class="dot-typing"></span></div>';
+      chatBox.appendChild(typing);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    function hideTyping() {
+      const t = document.getElementById('typing');
+      if (t) t.remove();
+    }
+
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = userInput.value.trim();
+      if (!text) return;
+      addMessage(text, 'user');
+      userInput.value = '';
+      showTyping();
+
+      try {
+        const res = await fetch('/get', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(()=>({error:'server error'}));
+          hideTyping();
+          addMessage('Sorry, something went wrong: ' + (err.error || res.statusText), 'bot');
+          return;
+        }
+
+        const data = await res.json();
+        hideTyping();
+        addMessage(data.reply || 'No response from MediBot.', 'bot');
+      } catch (err) {
+        hideTyping();
+        addMessage('Network error. Check server.','bot');
+        console.error(err);
+      }
+    });
+
+    // allow Enter to send
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        chatForm.requestSubmit();
+      }
+    });
+  </script>
+</body>
+</html>
