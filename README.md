@@ -1,19 +1,17 @@
+# MediBot
 
-## MediBot
-# 🩺 About MediBot
+## 🩺 About MediBot  
+MediBot is an AI-powered medical information chatbot built using a Retrieval-Augmented Generation (RAG) pipeline.  
+It provides **educational**, **non-diagnostic**, and **source-supported** medical information using embeddings, vector search, and LLMs.
 
-MediBot is an AI-powered medical information chatbot built using a Retrieval-Augmented Generation (RAG) pipeline.
-It provides educational, non-diagnostic, and source-supported medical information using embeddings, vector search, and LLMs.
-
-⚠️ Disclaimer: MediBot does not provide medical advice or prescriptions.
+⚠️ **Disclaimer:** MediBot does _not_ provide medical advice or prescriptions.  
 It is strictly for learning and informational purposes.
 
-🔑 API Usage Transparency
-
-This project uses OpenRouter’s free API access only.
-✔ No paid APIs were purchased
-✔ The entire project runs on free-tier developer keys
-✔ Fully cost-efficient and student-friendly
+### 🔑 API Usage Transparency  
+This project uses **OpenRouter’s free API access** only.  
+✔ No paid APIs were purchased  
+✔ The entire project runs on **free-tier developer keys**  
+✔ Fully cost-efficient and student-friendly  
 
 # How to run?
 ### STEPS:
